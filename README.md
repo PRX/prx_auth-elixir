@@ -1,2 +1,7 @@
-# prx_auth-elixir
-Plug to verify PRX-issued JWT
+# PrxAuth Elixir Package
+
+Elixir plug to verify PRX-issued JWTs.
+
+## Usage
+
+TODO
