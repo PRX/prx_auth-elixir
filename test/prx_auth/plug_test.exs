@@ -50,6 +50,17 @@ defmodule PrxAuth.PlugTest do
     end
   end
 
+  def issuer_fn, do: "id-staging.prx.tech"
+  test "sets the issuer via a function", %{conn: conn} do
+    verify = fn(_cert, iss, _jwt) ->
+      assert iss == "id-staging.prx.tech"
+      {:ok, %{}}
+    end
+    with_mock PrxAuth.Token, [verify: verify] do
+      assert PrxAuth.Plug.call(conn, iss: &issuer_fn/0).status == nil
+    end
+  end
+
   defp call_prx_auth(conn, auth, issuer, reqd) do
     conn |> set_auth(auth) |> PrxAuth.Plug.call(iss: issuer, required: reqd)
   end

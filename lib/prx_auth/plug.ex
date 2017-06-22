@@ -5,6 +5,9 @@ defmodule PrxAuth.Plug do
 
   def init(default), do: default
 
+  def call(conn, iss: iss, required: reqd) when is_function(iss) do
+    call(conn, iss: iss.(), required: reqd)
+  end
   def call(conn, iss: iss, required: reqd) do
     if Map.get(conn, :skip_prx_auth_during_tests) do
       conn
@@ -19,6 +22,7 @@ defmodule PrxAuth.Plug do
       end
     end
   end
+  def call(conn, required: reqd, iss: iss), do: call(conn, iss: iss, required: reqd)
   def call(conn, iss: iss), do: call(conn, iss: iss, required: true)
   def call(conn, required: reqd), do: call(conn, iss: @default_iss, required: reqd)
   def call(conn, _defaults), do: call(conn, iss: @default_iss, required: true)
