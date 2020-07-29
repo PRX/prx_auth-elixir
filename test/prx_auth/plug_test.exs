@@ -45,15 +45,15 @@ defmodule PrxAuth.PlugTest do
       assert conn.status == nil
       assert Map.has_key?(conn, :prx_user)
       assert conn.prx_user.id == 1234
-      assert conn.prx_user.auths["123"]["read"] == true
+      assert conn.prx_user.scopes["read"] == true
       assert conn.prx_user.auths["123"]["write"] == true
     end
   end
 
-  def issuer_fn, do: "id-staging.prx.tech"
+  def issuer_fn, do: "id.staging.prx.tech"
   test "sets the issuer via a function", %{conn: conn} do
     verify = fn(_cert, iss, _jwt) ->
-      assert iss == "id-staging.prx.tech"
+      assert iss == "id.staging.prx.tech"
       {:ok, %{}}
     end
     with_mock PrxAuth.Token, [verify: verify] do
