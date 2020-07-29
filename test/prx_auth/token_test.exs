@@ -7,13 +7,13 @@ defmodule PrxAuth.TokenTest do
   @jwk JOSE.JWK.from_pem_file("#{@support}/test_key.pem")
   @cert File.read("#{@support}/test_cert.pem") |> elem(1)
   @test_claims %{
-    "sub": 3,
-    "exp": 3600,
-    "iat": :os.system_time(:seconds),
-    "token_type": "bearer",
-    "scope": "profile email address phone read-private",
-    "aur": %{"123456" => "admin"},
-    "iss": "id.prx.org",
+    sub: 3,
+    exp: 3600,
+    iat: :os.system_time(:seconds),
+    token_type: "bearer",
+    scope: "profile email address phone read-private",
+    aur: %{"123456" => "admin"},
+    iss: "id.prx.org",
   }
 
   def claim(claims) do
@@ -49,7 +49,7 @@ defmodule PrxAuth.TokenTest do
   end
 
   test "verifies expired jwts" do
-    expired = %{"iss": "id.prx.org", "exp": 3600, "iat": :os.system_time(:seconds) - 4000}
+    expired = %{iss: "id.prx.org", exp: 3600, iat: :os.system_time(:seconds) - 4000}
     assert {:expired} = verify(@cert, "id.prx.org", claim(expired))
   end
 
