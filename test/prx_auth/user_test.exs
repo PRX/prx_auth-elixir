@@ -21,7 +21,7 @@ defmodule PrxAuth.UserTest do
     assert Map.keys(user.auths["123"]) == ["bar", "email", "foo", "profile"]
     assert Map.keys(user.auths["456"]) == ["admin", "email", "foo:bar", "profile", "something"]
     assert Map.keys(user.auths["789"]) == ["admin", "email", "foo:bar", "profile"]
-    assert Map.keys(user.wildcards) == []
+    assert Map.keys(user.wildcard) == []
   end
 
   test "defaults lack of claims data" do
@@ -69,6 +69,6 @@ defmodule PrxAuth.UserTest do
 
     assert Map.keys(user.auths) == ["123"]
     assert Map.keys(user.auths["123"]) == ["admin", "foo", "foo:bar", "profile"]
-    assert Map.keys(user.wildcards) == ["admin", "foo:bar", "profile"]
+    assert Map.keys(user.wildcard) == ["admin", "foo:bar", "profile"]
   end
 end

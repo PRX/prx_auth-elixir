@@ -1,6 +1,6 @@
 defmodule PrxAuth.User do
 
-  defstruct id: nil, auths: %{}, wildcards: []
+  defstruct id: nil, auths: %{}, wildcard: %{}
 
   @wildcard "*"
 
@@ -31,13 +31,11 @@ defmodule PrxAuth.User do
       |> Enum.map(&mapify_scopes/1)
       |> Enum.into(%{})
 
-    # remove wildcard scopes
-
-
+    # break out wildcard and struct-ify!
     %PrxAuth.User{
       id: claims["sub"],
       auths: Map.delete(auths, @wildcard),
-      wildcards: Map.get(auths, @wildcard, %{})
+      wildcard: Map.get(auths, @wildcard, %{})
     }
   end
 
