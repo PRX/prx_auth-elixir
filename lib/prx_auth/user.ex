@@ -1,6 +1,8 @@
 defmodule PrxAuth.User do
 
-  defstruct id: nil, auths: %{}
+  defstruct id: nil, auths: %{}, wildcards: []
+
+  @wildcard "*"
 
   def unpack(claims \\ %{}) do
     claims = claims
@@ -29,7 +31,14 @@ defmodule PrxAuth.User do
       |> Enum.map(&mapify_scopes/1)
       |> Enum.into(%{})
 
-    %PrxAuth.User{id: claims["sub"], auths: auths}
+    # remove wildcard scopes
+
+
+    %PrxAuth.User{
+      id: claims["sub"],
+      auths: Map.delete(auths, @wildcard),
+      wildcards: Map.get(auths, @wildcard, %{})
+    }
   end
 
   defp listify_strings("" <> scopes), do: String.split(scopes)
@@ -58,7 +67,14 @@ defmodule PrxAuth.User do
 
   defp dollar_scopes(auth, nil), do: auth
   defp dollar_scopes({id, scopes}, dollar) do
-    xtra_scopes = dollar |> Map.keys |> Enum.filter(&in_scope(dollar[&1], id))
+    xtra_scopes = Enum.reduce(Map.to_list(dollar), [], fn {key, val}, acc ->
+      if in_scope(val, id) do
+        acc ++ listify_strings(key)
+      else
+        acc
+      end
+    end)
+
     {id, scopes ++ xtra_scopes}
   end
 

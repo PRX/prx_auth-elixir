@@ -11,15 +11,17 @@ defmodule PrxAuth.UserTest do
         "" => %{},
         "123" => "foo bar",
         "456" => "something admin",
-        "$" => %{"admin" => [456, 789]}
+        "$" => %{"admin foo:bar" => [456, 789]}
       }
     })
+
     assert user.id == 1234
     assert Map.keys(user.auths) == ["123", "456", "789"]
     assert user.auths["123"]["bar"] == true
     assert Map.keys(user.auths["123"]) == ["bar", "email", "foo", "profile"]
-    assert Map.keys(user.auths["456"]) == ["admin", "email", "profile", "something"]
-    assert Map.keys(user.auths["789"]) == ["admin", "email", "profile"]
+    assert Map.keys(user.auths["456"]) == ["admin", "email", "foo:bar", "profile", "something"]
+    assert Map.keys(user.auths["789"]) == ["admin", "email", "foo:bar", "profile"]
+    assert Map.keys(user.wildcards) == []
   end
 
   test "defaults lack of claims data" do
@@ -52,5 +54,21 @@ defmodule PrxAuth.UserTest do
     })
     assert Map.keys(user.auths) == ["123"]
     assert Map.keys(user.auths["123"]) == ["some", "stuff"]
+  end
+
+  test "extracts wildcards" do
+    user = unpack(%{
+      "sub" => 1234,
+      "scope" => "profile",
+      "aur" => %{
+        "*" => "",
+        "123" => "foo",
+        "$" => %{"admin foo:bar" => [123, "*"]}
+      }
+    })
+
+    assert Map.keys(user.auths) == ["123"]
+    assert Map.keys(user.auths["123"]) == ["admin", "foo", "foo:bar", "profile"]
+    assert Map.keys(user.wildcards) == ["admin", "foo:bar", "profile"]
   end
 end
