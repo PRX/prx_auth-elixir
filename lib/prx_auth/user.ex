@@ -1,6 +1,6 @@
 defmodule PrxAuth.User do
 
-  defstruct id: nil, auths: %{}, wildcard: %{}
+  defstruct id: nil, scopes: %{}, auths: %{}, wildcard: %{}
 
   @wildcard "*"
 
@@ -25,7 +25,6 @@ defmodule PrxAuth.User do
 
     # now map ids to their scopes
     auths = ids
-      |> Enum.map(&global_scopes(&1, claims["scope"]))
       |> Enum.map(&aur_scopes(&1, claims["aur"]))
       |> Enum.map(&dollar_scopes(&1, Map.get(claims["aur"], "$")))
       |> Enum.map(&mapify_scopes/1)
@@ -34,6 +33,7 @@ defmodule PrxAuth.User do
     # break out wildcard and struct-ify!
     %PrxAuth.User{
       id: claims["sub"],
+      scopes: global_scopes(claims["scope"]),
       auths: Map.delete(auths, @wildcard),
       wildcard: Map.get(auths, @wildcard, %{})
     }
@@ -52,15 +52,16 @@ defmodule PrxAuth.User do
     }
   end
 
-  defp global_scopes(id, ""), do: {id, []}
-  defp global_scopes(id, scopes), do: {id, listify_strings(scopes)}
+  defp global_scopes(scopes) do
+    listify_strings(scopes || "") |> Enum.map(fn(s) -> {s, true} end) |> Enum.into(%{})
+  end
 
-  defp aur_scopes({id, scopes}, aur) do
+  defp aur_scopes(id, aur) do
     aur_scopes = Map.to_list(aur)
       |> Enum.map(fn({id, scopes}) -> {stringify_numbers(id), scopes} end)
       |> Enum.into(%{})
       |> Map.get(id)
-    {id, scopes ++ listify_strings(aur_scopes || [])}
+    {id, listify_strings(aur_scopes || [])}
   end
 
   defp dollar_scopes(auth, nil), do: auth

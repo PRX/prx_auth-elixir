@@ -45,7 +45,7 @@ defmodule PrxAuth.PlugTest do
       assert conn.status == nil
       assert Map.has_key?(conn, :prx_user)
       assert conn.prx_user.id == 1234
-      assert conn.prx_user.auths["123"]["read"] == true
+      assert conn.prx_user.scopes["read"] == true
       assert conn.prx_user.auths["123"]["write"] == true
     end
   end

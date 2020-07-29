@@ -18,9 +18,9 @@ defmodule PrxAuth.UserTest do
     assert user.id == 1234
     assert Map.keys(user.auths) == ["123", "456", "789"]
     assert user.auths["123"]["bar"] == true
-    assert Map.keys(user.auths["123"]) == ["bar", "email", "foo", "profile"]
-    assert Map.keys(user.auths["456"]) == ["admin", "email", "foo:bar", "profile", "something"]
-    assert Map.keys(user.auths["789"]) == ["admin", "email", "foo:bar", "profile"]
+    assert Map.keys(user.auths["123"]) == ["bar", "foo"]
+    assert Map.keys(user.auths["456"]) == ["admin", "foo:bar", "something"]
+    assert Map.keys(user.auths["789"]) == ["admin", "foo:bar"]
     assert Map.keys(user.wildcard) == []
   end
 
@@ -41,9 +41,9 @@ defmodule PrxAuth.UserTest do
       }
     })
     assert Map.keys(user.auths) == ["123", "456", "789"]
-    assert Map.keys(user.auths["123"]) == ["admin", "email", "read"]
-    assert Map.keys(user.auths["456"]) == ["admin", "email"]
-    assert Map.keys(user.auths["789"]) == ["email", "read"]
+    assert Map.keys(user.auths["123"]) == ["admin", "read"]
+    assert Map.keys(user.auths["456"]) == ["admin"]
+    assert Map.keys(user.auths["789"]) == ["read"]
   end
 
   test "handles aur only" do
@@ -68,7 +68,18 @@ defmodule PrxAuth.UserTest do
     })
 
     assert Map.keys(user.auths) == ["123"]
-    assert Map.keys(user.auths["123"]) == ["admin", "foo", "foo:bar", "profile"]
-    assert Map.keys(user.wildcard) == ["admin", "foo:bar", "profile"]
+    assert Map.keys(user.auths["123"]) == ["admin", "foo", "foo:bar"]
+    assert Map.keys(user.wildcard) == ["admin", "foo:bar"]
+  end
+
+  test "extracts global scopes" do
+    user = unpack(%{
+      "sub" => 1234,
+      "scope" => "profile email",
+    })
+
+    assert Map.keys(user.scopes) == ["email", "profile"]
+    assert user.scopes["email"] == true
+    assert user.scopes["profile"] == true
   end
 end
