@@ -13,7 +13,8 @@ defmodule PrxAuth do
   end
 
   def is_authorized?(%PrxAuth.User{} = user, resource_id, scope) do
-    user.auths[resource_id][to_string(scope)] || is_globally_authorized?(user, scope)
+    user.auths[to_string(resource_id)][PrxAuth.User.normalize_scope(to_string(scope))] ||
+      is_globally_authorized?(user, scope)
   end
 
   def is_authorized?(%PrxAuth.User{} = user, resource_id, namespace, scope) do
@@ -22,7 +23,7 @@ defmodule PrxAuth do
   end
 
   def is_globally_authorized?(%PrxAuth.User{} = user, scope) do
-    user.wildcard[to_string(scope)]
+    user.wildcard[PrxAuth.User.normalize_scope(to_string(scope))]
   end
 
   def is_globally_authorized?(%PrxAuth.User{} = user, namespace, scope) do

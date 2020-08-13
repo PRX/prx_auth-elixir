@@ -21,6 +21,14 @@ defmodule PrxAuthTest do
     refute is_authorized?(user, "456", :foo)
   end
 
+  test "is_authorized? normalizes input" do
+    user = mkuser("123", "This-Old-Scope ns2:this-new-scope ")
+
+    assert is_authorized?(user, 123, :this_old_scope)
+    assert is_authorized?(user, 123, :ns1, :this_old_scope)
+    assert is_authorized?(user, 123, :ns2, :this_new_scope)
+  end
+
   test "is_authorized? matches namespaced and unnamespaced queries" do
     user = mkuser("123", "foo ns1:bar")
 
