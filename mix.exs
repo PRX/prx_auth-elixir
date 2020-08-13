@@ -33,7 +33,8 @@ defmodule PrxAuth.Mixfile do
       {:httpoison, "~> 0.11"},
       {:ex_doc, "~> 0.14", only: :dev, runtime: false},
       {:mock, "~> 0.2.0", only: :test},
-      {:uuid, "~> 1.1", only: :test}
+      {:uuid, "~> 1.1", only: :test},
+      {:mix_test_watch, "~> 1.0", only: :dev, runtime: false}
     ]
   end
 
