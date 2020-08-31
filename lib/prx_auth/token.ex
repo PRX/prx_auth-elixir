@@ -33,7 +33,15 @@ defmodule PrxAuth.Token do
     end
   end
 
-  def expired?(%{"iat" => iat, "exp" => exp}), do: :os.system_time(:seconds) > (iat + exp)
-  def expired?(%{"exp" => exp}), do: :os.system_time(:seconds) > exp
-  def expired?(_), do: false
+  def expired?(%{"iat" => iat, "exp" => exp}) do
+    now = :os.system_time(:seconds)
+    cond do
+      iat > now -> true
+      iat <= exp -> expired?(exp)
+      true -> expired?(exp + iat)
+    end
+  end
+
+  def expired?(%{"exp" => exp}), do: expired?(exp)
+  def expired?(exp), do: :os.system_time(:seconds) > exp
 end

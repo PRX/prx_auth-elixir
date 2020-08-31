@@ -68,8 +68,8 @@ defmodule PrxAuth.TokenTest do
     now = :os.system_time(:seconds)
     assert expired?(%{}) == false
     assert expired?(%{"iat" => now - 10}) == false
-    assert expired?(%{"exp" => now - 100}) == true
-    assert expired?(%{"exp" => now + 10}) == false
+    assert expired?(%{"iat" => now - 150, "exp" => now - 100}) == true
+    assert expired?(%{"iat" => now - 10, "exp" => now + 10}) == false
     assert expired?(%{"iat" => now - 10, "exp" => 5}) == true
     assert expired?(%{"iat" => now - 10, "exp" => 15}) == false
   end
