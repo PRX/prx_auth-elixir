@@ -13,7 +13,7 @@ defmodule PrxAuth.TokenTest do
     token_type: "bearer",
     scope: "profile email address phone read-private",
     aur: %{"123456" => "admin"},
-    iss: "id.prx.org",
+    iss: "id.prx.org"
   }
 
   def claim(claims) do

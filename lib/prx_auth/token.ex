@@ -1,16 +1,27 @@
 defmodule PrxAuth.Token do
-
   def verify(_cert, _iss, nil), do: {:no_token}
+
   def verify(cert, iss, jwt) do
     jwk = JOSE.JWK.from_pem(cert)
+
     cond do
-      !valid?(jwt) -> {:invalid}
-      issuer(jwt) != iss -> {:bad_issuer}
-      jwk == [] -> {:bad_cert}
+      !valid?(jwt) ->
+        {:invalid}
+
+      issuer(jwt) != iss ->
+        {:bad_issuer}
+
+      jwk == [] ->
+        {:bad_cert}
+
       true ->
         case JOSE.JWT.verify(jwk, jwt) do
-          {:error, _err} -> {:failed}
-          {false, _claims, _jws} -> {:failed}
+          {:error, _err} ->
+            {:failed}
+
+          {false, _claims, _jws} ->
+            {:failed}
+
           {true, claims, _jws} ->
             if expired?(claims.fields), do: {:expired}, else: {:ok, claims.fields}
         end
@@ -35,6 +46,7 @@ defmodule PrxAuth.Token do
 
   def expired?(%{"iat" => iat, "exp" => exp}) do
     now = :os.system_time(:seconds)
+
     cond do
       iat > now -> true
       iat <= exp -> expired?(exp)
