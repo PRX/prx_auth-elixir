@@ -64,13 +64,33 @@ defmodule PrxAuth.TokenTest do
     assert issuer(claim(%{})) == nil
   end
 
-  test "detects expiration" do
+  test "handles old token expiration checking" do
     now = :os.system_time(:seconds)
-    assert expired?(%{}) == false
-    assert expired?(%{"iat" => now - 10}) == false
-    assert expired?(%{"iat" => now - 150, "exp" => now - 100}) == true
-    assert expired?(%{"iat" => now - 10, "exp" => now + 10}) == false
-    assert expired?(%{"iat" => now - 10, "exp" => 5}) == true
-    assert expired?(%{"iat" => now - 10, "exp" => 15}) == false
+    assert expired?(%{"iat" => now - 60, "exp" => 5})
+    refute expired?(%{"iat" => now - 60, "exp" => 120})
+  end
+
+  test "detects expiration using standard exp-based values" do
+    now = :os.system_time(:seconds)
+    assert expired?(%{"iat" => now - 150, "exp" => now - 100})
+    refute expired?(%{"iat" => now - 10, "exp" => now + 10})
+  end
+
+  test "treats expiration checking with no iat as standard exp" do
+    now = :os.system_time(:seconds)
+    assert expired?(%{"exp" => now - 100})
+    refute expired?(%{"exp" => now + 1})
+  end
+
+  test "is not expired when the token has no exp" do
+    now = :os.system_time(:seconds)
+    refute expired?(%{})
+    refute expired?(%{"iat" => now - 10})
+  end
+
+  test "it allows 30s of clock jitter on expiration" do
+    now = :os.system_time(:seconds)
+    refute expired?(%{"iat" => now - 40, "exp" => 11})
+    refute expired?(%{"exp" => now - 29})
   end
 end
